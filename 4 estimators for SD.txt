@@ -1,0 +1,274 @@
+#############################
+########## Part 1 ###########
+####### START R Program #######
+fix(sdnorm)
+#############################
+#############################
+
+#############################
+##### Part 2:  run in R Editor #####
+######## Programming ########
+
+function (n,mu,sigma, alpha, b) 
+{
+s = rep(0,b)
+bias.s = rep(0,b)
+var.s = rep(0,b)
+
+s.mle = rep(0,b)
+bias.s.mle = rep(0,b)
+var.s.mle = rep(0,b)
+
+s.hat = rep(0,b)
+bias.s.hat = rep(0,b)
+var.s.hat = rep(0,b)
+
+
+lower.1 = rep(0,b)
+upper.1 = rep(0,b)
+length.1 = rep(0,b)
+cp.1 = rep(0,b)
+
+lower.2 = rep(0,b)
+upper.2 = rep(0,b)
+length.2 = rep(0,b)
+cp.2 = rep(0,b)
+
+lower.3 = rep(0,b)
+upper.3 = rep(0,b)
+length.3 = rep(0,b)
+cp.3 = rep(0,b)
+
+lower.4 = rep(0,b)
+upper.4 = rep(0,b)
+length.4 = rep(0,b)
+cp.4 = rep(0,b)
+
+t = qt(1-alpha/2,n-1)
+x1 = qchisq(alpha/2,n-1)
+x2 = qchisq(1-alpha/2,n-1)
+
+n1 = gamma((n-1)/2)
+n2 = gamma(n/2)
+
+for (i in 1:b) {   ##start for loop
+
+## Gen data for normal 
+x = rnorm(n, mu, sigma)
+
+## Calculate point estimators
+s[i] = sd(x)    
+s.mle[i]=((sqrt(n-1))/sqrt(n))*sd(x)
+s.hat[i]=sqrt((n-1)/2)*(n1/n2)* s[i]
+
+## Calculate theoretical bias and variance of estimators
+bias.s[i] = (sqrt(2/(n-1)) * (n2/n1)-1) * s[i]
+bias.s.mle[i] = (sqrt(2/n) * (n2/n1)-1)* s.mle[i]   
+bias.s.hat[i] = 0
+
+var.s[i] = (1-2/(n-1)*(n2/n1)^2)*s[i]^2
+var.s.mle[i] = ((1-(1/n))-(2/n)*(n2/n1)^2)*s.mle[i]^2
+var.s.hat[i]=(((n-1)/2)*(n1/n2)^2-1)* s.hat[i]^2
+
+### CP/EL/CI
+lower.1[i] = s[i] - t*sqrt(var.s[i])
+upper.1[i] = s[i] + t*sqrt(var.s[i])
+length.1[i] = upper.1[i]-lower.1[i]
+## Find CP 
+if(sigma >= lower.1[i] & sigma <= upper.1[i] ) {cp.1[i] = 1}
+else {cp.1[i] = 0 }
+
+lower.2[i] = s.mle[i] - t*sqrt(var.s.mle[i])
+upper.2[i] = s.mle[i] + t*sqrt(var.s.mle[i])
+length.2[i] = upper.2[i]-lower.2[i]
+## Find CP 
+if(sigma >= lower.2[i] & sigma <= upper.2[i] ) {cp.2[i] = 1}
+else {cp.2[i] = 0 }
+
+lower.3[i] = s.hat[i] - t*sqrt(var.s.hat[i])
+upper.3[i] = s.hat[i] + t*sqrt(var.s.hat[i])
+length.3[i] = upper.3[i]-lower.3[i]
+## Find CP 
+if(sigma >= lower.3[i] & sigma <= upper.3[i] ) {cp.3[i] = 1}
+else {cp.3[i] = 0 }
+
+### Calculate CI,CP,EL for S using chi square statistics
+lower.4[i] = s[i]*sqrt(n-1)/sqrt(x2)
+upper.4[i] = s[i]*sqrt(n-1)/sqrt(x1)
+length.4[i] = upper.4[i]-lower.4[i]
+## Find CP 
+if(sigma >= lower.4[i] & sigma <= upper.4[i] ) {cp.4[i] = 1}
+else {cp.4[i] = 0 }
+
+} ##end for loop
+
+ 
+## Average values from b simulation runs
+ave.s = mean(s)
+ave.bias.s = mean(bias.s)
+ave.var.s = mean(var.s)
+
+ave.s.mle = mean(s.mle)
+ave.bias.s.mle = mean(bias.s.mle)
+ave.var.s.mle = mean(var.s.mle)
+
+ave.s.hat = mean(s.hat)
+ave.bias.s.hat = mean(bias.s.hat)
+ave.var.s.hat = mean(var.s.hat)
+
+## empirical value for bias and variance of estimator
+em.ave.bias.s = mean(s)-sigma
+em.ave.var.s = var(s)
+
+em.ave.bias.s.mle = mean(s.mle)-sigma
+em.ave.var.s.mle = var(s.mle)
+
+em.ave.bias.s.hat = mean(s.hat)-sigma
+em.ave.var.s.hat = var(s.hat)
+
+## Calculate MSE
+mse.s = mean(var.s) + (mean(bias.s))^2
+mse.s.mle = mean(var.s.mle) + (mean(bias.s.mle))^2
+mse.s.hat = mean(var.s.hat) + (mean(bias.s.hat))^2
+
+## Calculate Empirical MSE
+em.mse.s = em.ave.var.s + (em.ave.bias.s)^2
+em.mse.s.mle = em.ave.var.s.mle + (em.ave.bias.s.mle)^2
+em.mse.s.hat = em.ave.var.s.hat + (em.ave.bias.s.hat)^2
+
+## Average values of CP/EL from b simulation runs
+ave.cp.1 = mean(cp.1)
+ave.length.1 = mean(length.1)
+ave.cp.2 = mean(cp.2)
+ave.length.2 = mean(length.2)
+ave.cp.3 = mean(cp.3)
+ave.length.3 = mean(length.3)
+ave.cp.4 = mean(cp.4)
+ave.length.4 = mean(length.4)
+ave.cp.5 = mean(cp.5)
+ave.length.5 = mean(length.5)
+
+cat(n,'\t', mu,'\t', sigma, '\n', 
+ave.s,'\t', ave.s.mle ,'\t', ave.s.hat ,'\n' ,
+ave.bias.s, '\t',ave.bias.s.mle , '\t',ave.bias.s.hat ,'\n',
+em.ave.bias.s, '\t',em.ave.bias.s.mle , '\t' , em.ave.bias.s.hat ,'\n' ,
+ave.var.s ,'\t',ave.var.s.mle,  '\t', ave.var.s.hat,'\n',
+em.ave.var.s,'\t', em.ave.var.s.mle, '\t', em.ave.var.s.hat,'\n',
+mse.s,  '\t', mse.s.mle ,  '\t', mse.s.hat,'\n',
+ave.cp.1, '\t', ave.cp.2, '\t', ave.cp.3, '\t', ave.cp.4 ,'\n',
+ave.length.1, '\t' , ave.length.2, '\t' ,ave.length.3, '\t', ave.length.4 ,'\n' )
+}
+
+#############################
+#############################
+##### Part 3:  run in R console  #####
+########### Output ##########
+#############################
+
+## Case mu=5
+sdnorm(n=10 ,mu=5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=5 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=5 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=5 ,sigma=1,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=5 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=5 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=5 ,sigma=1 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=5 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=5 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=5 ,sigma=2,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=5 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=5 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=5 ,sigma=2 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=5 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=5 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=5 ,sigma=5,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=5 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=5 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=5 ,sigma=5 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=5 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=5 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=5 ,sigma=10,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=5 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=5 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=5 ,sigma=10 ,alpha=0.05 ,b=10000)
+
+## Case mu=0
+sdnorm(n=10 ,mu=0 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=0 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=0 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=0 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=0 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=0 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=0 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=0 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=0 ,sigma=1,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=0 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=0 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=0 ,sigma=1 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=0 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=0 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=0 ,sigma=2,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=0 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=0 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=0 ,sigma=2 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=0 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=0 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=0 ,sigma=5,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=0 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=0 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=0 ,sigma=5 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=0 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=0 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=0 ,sigma=10,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=0 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=0 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=0 ,sigma=10 ,alpha=0.05 ,b=10000)
+
+## Case mu=-5
+sdnorm(n=10 ,mu=-5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=-5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=-5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=-5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=-5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=-5 ,sigma=0.5 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=-5 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=-5 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=-5 ,sigma=1,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=-5 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=-5 ,sigma=1 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=-5 ,sigma=1 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=-5 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=-5 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=-5 ,sigma=2,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=-5 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=-5 ,sigma=2 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=-5 ,sigma=2 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=-5 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=-5 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=-5 ,sigma=5,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=-5 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=-5 ,sigma=5 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=-5 ,sigma=5 ,alpha=0.05 ,b=10000)
+
+sdnorm(n=10 ,mu=-5 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=20 ,mu=-5 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=30 ,mu=-5 ,sigma=10,alpha=0.05 ,b=10000)
+sdnorm(n=50 ,mu=-5 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=100 ,mu=-5 ,sigma=10 ,alpha=0.05 ,b=10000)
+sdnorm(n=300 ,mu=-5 ,sigma=10 ,alpha=0.05 ,b=10000)

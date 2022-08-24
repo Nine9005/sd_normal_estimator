@@ -1,0 +1,79 @@
+#############################
+########## Part 1 ###########
+####### START Program #######
+fix(sd)
+#############################
+#############################
+
+#############################
+##### Part 2:  run in R Editor #####
+######## Programming ########
+
+function (alpha) 
+{
+
+x = c(39.68,39.08,38.48,39.48,39.88,39.08,38.08,37.48,36.88,36.28,36.28,36.28,35.48,35.48,35.88,35.88,35.28,34.78,34.28,33.78,33.28,32.88,32.38,31.88,31.48,31.48,30.88,30.38,30.68,30.28,29.68,30.18)
+n = length(x)
+
+t = qt(1-alpha/2,n-1)
+x1 = qchisq(alpha/2,n-1)
+x2 = qchisq(1-alpha/2,n-1)
+
+n1 = gamma((n-1)/2)
+n2 = gamma(n/2)
+
+## Calculate mean
+
+xbar = mean(x)
+
+## Calculate point estimators
+s = sd(x)    
+s.mle=((sqrt(n-1))/sqrt(n))*sd(x)
+s.hat=sqrt((n-1)/2)*(n1/n2)* sd(x)
+
+## Calculate variance of estimators
+var.s = (1-2/(n-1)*(n2/n1)^2)*s^2
+var.s.mle = ((1-(1/n))-(2/n)*(n2/n1)^2)*s.mle^2
+var.s.hat =(((n-1)/2)*(n1/n2)^2-1)* s.hat^2
+
+## Calculate CV
+
+CV.s = (s/mean(x))*100
+CV.s.mle = (s.mle/mean(x))*100
+CV.s.hat = (s.hat/mean(x))*100
+
+## Calculate lower and upper limit of CI and Length
+
+lower.1 = s - t*sqrt(var.s)
+upper.1 = s + t*sqrt(var.s)
+length.1 = upper.1-lower.1
+
+lower.2 = s.mle - t*sqrt(var.s.mle)
+upper.2 = s.mle + t*sqrt(var.s.mle)
+length.2 = upper.2-lower.2
+
+lower.3 = s.hat - t*sqrt(var.s.hat)
+upper.3 = s.hat + t*sqrt(var.s.hat)
+length.3 = upper.3-lower.3
+
+lower.4 = s*sqrt(n-1)/sqrt(x2)
+upper.4 = s*sqrt(n-1)/sqrt(x1)
+length.4 = upper.4-lower.4
+
+cat(n,'\t', xbar ,'\t', alpha , '\n', 
+s,'\t', s.mle ,'\t', s.hat ,'\n' ,
+CV.s,'\t', CV.s.mle ,'\t', CV.s.hat ,'\n' ,
+var.s ,'\t',var.s.mle,  '\t', var.s.hat,'\n',
+lower.1, '\t', upper.1, '\t', length.1,'\n',
+lower.2, '\t', upper.2, '\t', length.2,'\n',
+lower.3, '\t', upper.3, '\t', length.3,'\n',
+lower.4, '\t', upper.4, '\t', length.4,'\n')
+}
+
+#############################
+#############################
+##### Part 3:  run in R console  #####
+########### Output ##########
+#############################
+
+sd(0.05)
